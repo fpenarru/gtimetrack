@@ -15,7 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
