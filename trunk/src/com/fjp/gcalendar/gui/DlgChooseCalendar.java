@@ -5,6 +5,13 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,19 +25,29 @@ import java.util.TreeSet;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import com.fjp.gcalendar.MyEntry;
+import com.google.gdata.client.calendar.CalendarQuery;
+import com.google.gdata.client.calendar.CalendarService;
+import com.google.gdata.data.DateTime;
 import com.google.gdata.data.calendar.CalendarEntry;
+import com.google.gdata.data.calendar.CalendarEventEntry;
+import com.google.gdata.data.calendar.CalendarEventFeed;
+import com.google.gdata.data.extensions.When;
+import com.google.gdata.util.AuthenticationException;
+import com.google.gdata.util.ServiceException;
 
 public class DlgChooseCalendar extends JDialog {
 
 	private static final long serialVersionUID = 1L;
-	
-	private SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");  //  @jve:decl-index=0:
-	
+
+	private SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy"); // @jve:decl-index=0:
+
 	private class myComparator implements Comparator<CalendarEntry> {
 
 		public int compare(CalendarEntry o1, CalendarEntry o2) {
@@ -38,11 +55,11 @@ public class DlgChooseCalendar extends JDialog {
 			String str2 = o2.getTitle().getPlainText();
 			return str1.compareTo(str2);
 		}
-		
+
 	}
-	
+
 	private JPanel jContentPane = null;
-	
+
 	private JPanel jPanelCalendar = null;
 
 	private JPanel jPanelTimeInterval = null;
@@ -67,6 +84,8 @@ public class DlgChooseCalendar extends JDialog {
 
 	private CalendarEntry[] entries;
 
+	private CalendarService theService;
+
 	/**
 	 * @param owner
 	 */
@@ -74,13 +93,13 @@ public class DlgChooseCalendar extends JDialog {
 		super(owner);
 		initialize();
 		Calendar cal = Calendar.getInstance();
-//		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+		// SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 		NumberFormat nF = NumberFormat.getInstance();
 		nF.setMinimumIntegerDigits(2);
 		nF.setMaximumFractionDigits(0);
-		
+
 		String strMonth = nF.format(cal.get(Calendar.MONTH) + 1);
-		String strYear = ""+ cal.get(Calendar.YEAR);
+		String strYear = "" + cal.get(Calendar.YEAR);
 		String strFrom = "01/" + strMonth + "/" + strYear;
 		String lastDay = nF.format(cal.getActualMaximum(Calendar.DAY_OF_MONTH));
 		String strTo = lastDay + "/" + strMonth + "/" + strYear;
@@ -116,9 +135,9 @@ public class DlgChooseCalendar extends JDialog {
 	}
 
 	/**
-	 * This method initializes jPanelCalendar	
-	 * 	
-	 * @return javax.swing.JPanel	
+	 * This method initializes jPanelCalendar
+	 * 
+	 * @return javax.swing.JPanel
 	 */
 	private JPanel getJPanelCalendar() {
 		if (jPanelCalendar == null) {
@@ -138,9 +157,9 @@ public class DlgChooseCalendar extends JDialog {
 	}
 
 	/**
-	 * This method initializes jPanelTimeInterval	
-	 * 	
-	 * @return javax.swing.JPanel	
+	 * This method initializes jPanelTimeInterval
+	 * 
+	 * @return javax.swing.JPanel
 	 */
 	private JPanel getJPanelTimeInterval() {
 		if (jPanelTimeInterval == null) {
@@ -181,9 +200,9 @@ public class DlgChooseCalendar extends JDialog {
 	}
 
 	/**
-	 * This method initializes jPanelButtons	
-	 * 	
-	 * @return javax.swing.JPanel	
+	 * This method initializes jPanelButtons
+	 * 
+	 * @return javax.swing.JPanel
 	 */
 	private JPanel getJPanelButtons() {
 		if (jPanelButtons == null) {
@@ -196,22 +215,58 @@ public class DlgChooseCalendar extends JDialog {
 	}
 
 	/**
-	 * This method initializes jBtnExport	
-	 * 	
-	 * @return javax.swing.JButton	
+	 * This method initializes jBtnExport
+	 * 
+	 * @return javax.swing.JButton
 	 */
 	private JButton getJBtnExport() {
 		if (jBtnExport == null) {
 			jBtnExport = new JButton();
 			jBtnExport.setText("Export");
+			jBtnExport.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					Date desde, hasta;
+
+					URL feedUrl;
+					CalendarEntry selectedEntry = getSelectedCalendar();
+					String strFeed = selectedEntry.getLinks().get(0).getHref();
+
+					System.out.println(strFeed);
+					try {
+						feedUrl = new URL(strFeed);
+						desde = getFromDate();
+						hasta = getToDate();
+						
+						JFileChooser fileChooser = new JFileChooser();
+						int res = fileChooser.showSaveDialog(getParent());
+						if (res == JFileChooser.APPROVE_OPTION)
+						{
+							File f = fileChooser.getSelectedFile();
+							DataOutputStream output = new DataOutputStream(new FileOutputStream(f));
+							exportWorkTime(desde, hasta, feedUrl, theService, output);
+							output.flush();
+							output.close();
+							
+							dispose();
+						}
+						
+						
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+					
+					
+				}
+			});
+			
 		}
 		return jBtnExport;
 	}
 
 	/**
-	 * This method initializes jBtnClose	
-	 * 	
-	 * @return javax.swing.JButton	
+	 * This method initializes jBtnClose
+	 * 
+	 * @return javax.swing.JButton
 	 */
 	private JButton getJBtnClose() {
 		if (jBtnClose == null) {
@@ -227,9 +282,9 @@ public class DlgChooseCalendar extends JDialog {
 	}
 
 	/**
-	 * This method initializes jCboCalendar	
-	 * 	
-	 * @return javax.swing.JComboBox	
+	 * This method initializes jCboCalendar
+	 * 
+	 * @return javax.swing.JComboBox
 	 */
 	private JComboBox getJCboCalendar() {
 		if (jCboCalendar == null) {
@@ -240,9 +295,9 @@ public class DlgChooseCalendar extends JDialog {
 	}
 
 	/**
-	 * This method initializes jTxtFrom	
-	 * 	
-	 * @return javax.swing.JTextField	
+	 * This method initializes jTxtFrom
+	 * 
+	 * @return javax.swing.JTextField
 	 */
 	private JTextField getJTxtFrom() {
 		if (jTxtFrom == null) {
@@ -253,9 +308,9 @@ public class DlgChooseCalendar extends JDialog {
 	}
 
 	/**
-	 * This method initializes jTxtTo	
-	 * 	
-	 * @return javax.swing.JTextField	
+	 * This method initializes jTxtTo
+	 * 
+	 * @return javax.swing.JTextField
 	 */
 	private JTextField getJTxtTo() {
 		if (jTxtTo == null) {
@@ -270,23 +325,22 @@ public class DlgChooseCalendar extends JDialog {
 		tree.addAll(entries);
 		this.entries = (CalendarEntry[]) tree.toArray(new CalendarEntry[0]);
 		Iterator it = tree.iterator();
-		while (it.hasNext())
-		{
+		while (it.hasNext()) {
 			CalendarEntry entry = (CalendarEntry) it.next();
 			System.out.println("\t" + entry.getTitle().getPlainText());
 			System.out.println("Feed: " + entry.getId());
 			System.out.println("Feed2: " + entry.getHtmlLink());
 			jCboCalendar.addItem(entry.getTitle().getPlainText());
-//			jCboCalendar.add(entry);
+			// jCboCalendar.add(entry);
 		}
-//		jCboCalendar.setModel(new DefaultComboBoxModel(tree.toArray(new CalendarEntry[0])));
+		// jCboCalendar.setModel(new DefaultComboBoxModel(tree.toArray(new
+		// CalendarEntry[0])));
 
-		
 	}
 
 	public CalendarEntry getSelectedCalendar() {
 		int selected = jCboCalendar.getSelectedIndex();
-		
+
 		return entries[selected];
 	}
 
@@ -309,6 +363,89 @@ public class DlgChooseCalendar extends JDialog {
 		}
 
 		return null;
+	}
+
+	private void exportWorkTime(Date desde, Date hasta, URL feedUrl, CalendarService myService, DataOutputStream output)
+			throws MalformedURLException, AuthenticationException, IOException,
+			ServiceException {
+
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+		CalendarQuery myQuery = new CalendarQuery(feedUrl);
+		DateTime fromG = new DateTime(desde);
+		DateTime toG = new DateTime(hasta);
+		myQuery.setMinimumStartTime(fromG);
+		myQuery.setMaximumStartTime(toG);
+
+		// Send the request and receive the response:
+		myQuery.setMaxResults(200);
+
+		CalendarEventFeed resultFeed = myService.query(myQuery,
+				CalendarEventFeed.class);
+
+		System.out.println("Total: " + resultFeed.getTotalResults());
+		System.out.println("Total: " + resultFeed.getEntries().size());
+
+		List list = resultFeed.getEntries();
+		double sumaHoras = 0;
+
+		// Ordenamos por fecha
+		TreeSet<MyEntry> ordered = new TreeSet<MyEntry>();
+		for (int i = 0; i < list.size(); i++) {
+			CalendarEventEntry ev = (CalendarEventEntry) list.get(i);
+			List<When> times = ev.getTimes();
+			for (int j = 0; j < times.size(); j++) {
+				DateTime from = times.get(j).getStartTime();
+				DateTime to = times.get(j).getEndTime();
+				MyEntry myEntry = new MyEntry(ev, from, to);
+				ordered.add(myEntry);
+			}
+		}
+		Iterator<MyEntry> ordIterator = ordered.iterator();
+		while (ordIterator.hasNext()) {
+			MyEntry entry = ordIterator.next();
+			CalendarEventEntry ev = entry.getEntry();
+			System.out.print(ev.getTitle().getPlainText() + "; ");
+			DateTime from = entry.getStartTime();
+			DateTime to = entry.getStopTime();
+
+			Date t;
+			Date d;
+			long dif = 0;
+			try {
+				if (from.isDateOnly()) {
+					dif = 8 * 60 * 60 * 1000;
+				} else {
+					d = df.parse(from.toUiString());
+					t = df.parse(to.toUiString());
+					dif = t.getTime() - d.getTime();
+					if (dif >= 24 * 60 * 60 * 1000)
+						dif = 8 * 60 * 60 * 1000;
+				}
+				long seconds = (dif / 1000);
+				int hours = (int) seconds / 3600;
+				int minutes = (int) ((seconds / 60) - (hours * 60));
+				double workT = hours + minutes / 60.0;
+				String strWork = "" + workT;
+				String line = from.toUiString() + "; " + to.toUiString() + "; " +  strWork.replace(".", ",");
+				System.out.println(line);
+				output.writeChars(line + "\n");
+				sumaHoras += workT;
+
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+
+		System.out.println("Total de horas: " + sumaHoras
+				+ ". Precio estimado: " + (sumaHoras * 37) + " euros");
+	}
+
+	public void setCalendarService(CalendarService myService) {
+		this.theService = myService;
 	}
 
 }
