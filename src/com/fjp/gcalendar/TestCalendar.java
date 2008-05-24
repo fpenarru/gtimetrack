@@ -1,6 +1,8 @@
 package com.fjp.gcalendar;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -12,6 +14,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.TreeSet;
+
+import javax.swing.JOptionPane;
 
 import com.fjp.gcalendar.gui.DlgChooseCalendar;
 import com.google.gdata.client.calendar.CalendarQuery;
@@ -36,6 +40,25 @@ public class TestCalendar {
 			CalendarService myService = new CalendarService("gTimeTrack");
 
 			Properties p = new Properties();
+			File f = new File("user.ini");
+			if (!f.exists())
+			{
+				String user = JOptionPane.showInputDialog("Fist time execution. Enter username for google calendar:");
+				String passw = JOptionPane.showInputDialog("Enter password for google calendar:");
+				if (f.createNewFile())
+				{
+					Properties prop = new Properties();
+					prop.setProperty("user", user);
+					prop.setProperty("password", passw);
+					FileOutputStream out = new FileOutputStream(f);
+					prop.store(out, "gTimeTrack");
+					out.close();
+				}
+				else
+				{
+					System.err.println("Cannot create user.ini file " + f.getAbsolutePath());
+				}
+			}
 			p.load(new FileInputStream("user.ini"));
 			String user = p.getProperty("user");
 			String password = p.getProperty("password");
@@ -50,16 +73,12 @@ public class TestCalendar {
 					CalendarFeed.class);
 			System.out.println("Your calendars:");
 			System.out.println();
+			myDlg.setCalendarService(myService);
 			myDlg.setCalendarEntries(resultFeed.getEntries());
 			myDlg.setModal(true);
 			myDlg.setVisible(true);
 
 			Date desde, hasta;
-			Calendar cal = Calendar.getInstance();
-			cal.set(2007, Calendar.DECEMBER, 1);
-			desde = cal.getTime();
-			cal.set(2008, Calendar.MARCH, 31, 23, 59, 59);
-			hasta = cal.getTime();
 
 			URL feedUrl;
 			// IVER
