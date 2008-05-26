@@ -29,7 +29,7 @@ import com.google.gdata.data.extensions.When;
 import com.google.gdata.util.AuthenticationException;
 import com.google.gdata.util.ServiceException;
 
-public class TestCalendar {
+public class Main {
 
 	/**
 	 * @param args
