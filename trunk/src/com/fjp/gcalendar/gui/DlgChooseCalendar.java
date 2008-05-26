@@ -27,6 +27,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -247,7 +248,7 @@ public class DlgChooseCalendar extends JDialog {
 							output.flush();
 							output.close();
 							
-							dispose();
+							JOptionPane.showMessageDialog(getParent(), "File exported.");
 						}
 						
 						
