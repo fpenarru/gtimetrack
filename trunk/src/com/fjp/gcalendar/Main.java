@@ -16,6 +16,9 @@ import java.util.Properties;
 import java.util.TreeSet;
 
 import javax.swing.JOptionPane;
+import javax.swing.LookAndFeel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import com.fjp.gcalendar.gui.DlgChooseCalendar;
 import com.google.gdata.client.calendar.CalendarQuery;
@@ -37,6 +40,9 @@ public class Main {
 	public static void main(String[] args) {
 
 		try {
+			
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			
 			CalendarService myService = new CalendarService("gTimeTrack");
 
 			Properties p = new Properties();
@@ -75,6 +81,7 @@ public class Main {
 			System.out.println();
 			myDlg.setCalendarService(myService);
 			myDlg.setCalendarEntries(resultFeed.getEntries());
+			
 			myDlg.setModal(true);
 			myDlg.setVisible(true);
 
@@ -109,6 +116,18 @@ public class Main {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ServiceException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
