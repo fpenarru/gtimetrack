@@ -1,5 +1,5 @@
-#summary Welcome page to gTimeTrack
-
+#summary Welcome to gTimeTrack project.
+ 
 = Introduction =
 
 gTimeTrack is a utility written in Java to import your calendars to a .csv file.
