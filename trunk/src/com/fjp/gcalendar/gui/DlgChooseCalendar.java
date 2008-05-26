@@ -379,7 +379,7 @@ public class DlgChooseCalendar extends JDialog {
 		myQuery.setMaximumStartTime(toG);
 
 		// Send the request and receive the response:
-		myQuery.setMaxResults(200);
+		myQuery.setMaxResults(2000);
 
 		CalendarEventFeed resultFeed = myService.query(myQuery,
 				CalendarEventFeed.class);
@@ -406,7 +406,7 @@ public class DlgChooseCalendar extends JDialog {
 		while (ordIterator.hasNext()) {
 			MyEntry entry = ordIterator.next();
 			CalendarEventEntry ev = entry.getEntry();
-			System.out.print(ev.getTitle().getPlainText() + "; ");
+			String line = ev.getTitle().getPlainText() + "; ";
 			DateTime from = entry.getStartTime();
 			DateTime to = entry.getStopTime();
 
@@ -428,7 +428,7 @@ public class DlgChooseCalendar extends JDialog {
 				int minutes = (int) ((seconds / 60) - (hours * 60));
 				double workT = hours + minutes / 60.0;
 				String strWork = "" + workT;
-				String line = from.toUiString() + "; " + to.toUiString() + "; " +  strWork.replace(".", ",");
+				line = line + from.toUiString() + "; " + to.toUiString() + "; " +  strWork.replace(".", ",");
 				System.out.println(line);
 				output.writeChars(line + "\n");
 				sumaHoras += workT;
