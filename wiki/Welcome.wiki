@@ -5,7 +5,7 @@
 gTimeTrack is a utility written in Java to import your calendars to a .csv file.
 This way, you can download your data and export it to another database.
 
-For example, you can save in Google Calendar the working hours with in a project, and each month you can extract this information to know how mouch hours did you spend in this project.
+For example, you can save in Google Calendar the working hours you have dedicated to a project, and each month you can extract this information to know how mouch hours did you spend in this project.
 
 
 = Details =
