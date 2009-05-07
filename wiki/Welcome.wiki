@@ -13,3 +13,6 @@ For example, you can save in Google Calendar the working hours you have dedicate
   * *GPL* license.
   * Java code.
   * More information: http://www.scolab.es
+
+= Manual =
+(Courtesy of Manuel Madrid): [http:gTimeTrack/gTimeTrack_user_guide.pdf]
