@@ -15,4 +15,4 @@ For example, you can save in Google Calendar the working hours you have dedicate
   * More information: http://www.scolab.es
 
 = Manual =
-(Courtesy of Manuel Madrid): [http://code.google.com/p/gtimetrack/source/trunk/wiki/gTimeTrack_user_guide.pdf gTimeTrack_user_guide.pdf]
+(Courtesy of Manuel Madrid): [http://gtimetrack.googlecode.com/files/gTimeTrack_user_guide.pdf gTimeTrack_user_guide.pdf]
