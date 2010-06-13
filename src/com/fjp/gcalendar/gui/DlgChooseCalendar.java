@@ -9,7 +9,9 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.NumberFormat;
@@ -243,7 +245,7 @@ public class DlgChooseCalendar extends JDialog {
 						if (res == JFileChooser.APPROVE_OPTION)
 						{
 							File f = fileChooser.getSelectedFile();
-							DataOutputStream output = new DataOutputStream(new FileOutputStream(f));
+							FileWriter output = new FileWriter(f);
 							exportWorkTime(desde, hasta, feedUrl, theService, output);
 							output.flush();
 							output.close();
@@ -366,7 +368,7 @@ public class DlgChooseCalendar extends JDialog {
 		return null;
 	}
 
-	private void exportWorkTime(Date desde, Date hasta, URL feedUrl, CalendarService myService, DataOutputStream output)
+	private void exportWorkTime(Date desde, Date hasta, URL feedUrl, CalendarService myService, OutputStreamWriter output)
 			throws MalformedURLException, AuthenticationException, IOException,
 			ServiceException {
 
@@ -428,10 +430,15 @@ public class DlgChooseCalendar extends JDialog {
 				int hours = (int) seconds / 3600;
 				int minutes = (int) ((seconds / 60) - (hours * 60));
 				double workT = hours + minutes / 60.0;
+				
+				String location = "-";
+				if (ev.getLocations().size() > 0)
+					location = ev.getLocations().get(0).getValueString();
 				String strWork = "" + workT;
-				line = line + from.toUiString() + "; " + to.toUiString() + "; " +  strWork.replace(".", ",");
+				line = line + from.toUiString() + "; " + to.toUiString() + "; " 
+					+  strWork.replace(".", ",") + "; " + location;
 				System.out.println(line);
-				output.writeChars(line + "\n");
+				output.write(line + "\n");
 				sumaHoras += workT;
 
 			} catch (ParseException e) {
